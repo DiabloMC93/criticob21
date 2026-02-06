@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Accesos Venosos y Arteriales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Más oscuro (Slate 950) */
+            color: #f1f5f9;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8); /* Slate 900 */
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: rgba(51, 65, 85, 0.8);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .correct {
+            background-color: #064e3b !important; /* Verde oscuro */
+            border-color: #10b981 !important;
+            color: #d1fae5 !important;
+        }
+
+        .incorrect {
+            background-color: #450a0a !important; /* Rojo oscuro */
+            border-color: #ef4444 !important;
+            color: #fee2e2 !important;
+        }
+
+        #next-btn {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" class="w-full max-w-2xl">
+        <!-- Pantalla del Test -->
+        <div id="quiz-screen">
+            <!-- Cabecera de Stats -->
+            <div class="flex justify-between items-end mb-8 px-2">
+                <div class="flex gap-4">
+                    <div class="glass-card px-5 py-3 rounded-2xl border-green-500/20 text-center min-w-[110px]">
+                        <span class="text-[10px] uppercase tracking-widest text-slate-500 font-bold block mb-1">Aciertos</span>
+                        <span id="score-correct" class="text-2xl font-bold text-green-400">0</span>
+                    </div>
+                    <div class="glass-card px-5 py-3 rounded-2xl border-red-500/20 text-center min-w-[110px]">
+                        <span class="text-[10px] uppercase tracking-widest text-slate-500 font-bold block mb-1">Errores</span>
+                        <span id="score-incorrect" class="text-2xl font-bold text-red-400">0</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span id="question-index" class="text-xs font-bold text-blue-400 uppercase tracking-tighter bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/20">
+                        Pregunta 1 / 22
+                    </span>
+                </div>
+            </div>
+
+            <!-- Pregunta -->
+            <div class="glass-card p-8 md:p-10 rounded-3xl mb-8 relative overflow-hidden">
+                <!-- Decoración sutil -->
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                
+                <h2 id="question-text" class="text-xl md:text-2xl font-medium mb-10 text-slate-100 leading-snug">
+                    Cargando pregunta...
+                </h2>
+                
+                <div id="options-container" class="grid gap-3">
+                    <!-- Opciones se insertan aquí -->
+                </div>
+            </div>
+            
+            <div class="flex justify-center">
+                <button id="next-btn" onclick="quiz.next()" class="hidden bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl font-bold transition-all transform active:scale-95">
+                    Siguiente Pregunta
+                </button>
+            </div>
+        </div>
+
+        <!-- Pantalla Final -->
+        <div id="result-screen" class="hidden glass-card p-12 rounded-3xl text-center">
+            <div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold mb-2 text-white">¡Test Completado!</h2>
+            <p class="text-slate-400 mb-10">Has finalizado el repaso de accesos vasculares.</p>
+            
+            <div class="grid grid-cols-2 gap-6 mb-12">
+                <div class="p-6 bg-slate-900/50 rounded-2xl border border-green-500/20">
+                    <p class="text-green-500 text-xs font-bold uppercase mb-2">Aciertos</p>
+                    <p id="final-correct" class="text-5xl font-bold text-green-400">0</p>
+                </div>
+                <div class="p-6 bg-slate-900/50 rounded-2xl border border-red-500/20">
+                    <p class="text-red-500 text-xs font-bold uppercase mb-2">Errores</p>
+                    <p id="final-incorrect" class="text-5xl font-bold text-red-400">0</p>
+                </div>
+            </div>
+            
+            <button onclick="location.reload()" class="w-full bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-2xl font-bold transition-all border border-slate-700">
+                Volver a Empezar
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "¿Si es un acceso periférico, quién lo realiza?", a: ["Médico", "Enfermero", "Auxiliar", "Anestesista"], c: 1 },
+            { q: "¿Si es un acceso central quien lo realiza?", a: ["Médico", "Enfermero", "Auxiliar", "Anestesista"], c: 0 },
+            { q: "¿Qué tipo de accesos venosos central hay?", a: ["Antecubital (basílica o cefálica) Yugular interna Femoral", "Antecubital (basílica o cefálica) Subclavia Yugular externa Femoral", "Antecubital (basílica o cefálica) Subclavia Yugular interna Femoral", "Antecubital (basílica o cefálica) Subclavia Yugular interna"], c: 2 },
+            { q: "¿El acceso venoso central en la subclavia está contraindicado en?", a: ["Contraindicada en coagulopatías (dificultad para controlar la hemorragia)", "Contraindicada en patología carotídea", "Contraindicada en obstrucción de vena cava inferior", "No tiene contraindicación"], c: 0 },
+            { q: "¿Qué riesgo hay en el acceso venoso central en la subclavia?", a: ["Riesgo de trombosis", "Riesgo de inflamación", "Riesgo de neumotórax", "No tiene riesgo"], c: 2 },
+            { q: "Posición del acceso venoso central en la subclavia", a: ["Ligero trendelemburg, cabeza vuelta al lado contrario", "Ligero trendelemburg (15º)", "Debajo del ligamento inguinal, 1 cm por dentro de la arteria subclavia", "Ligero trendelemburg (35º)"], c: 0 },
+            { q: "En el momento de la punción del acceso venoso central en la subclavia, ¿qué hay que hacer?", a: ["Subir la PEEP en el momento de punción", "PEEP en el momento de punción tiene que estar 0-5", "Bajar la PEEP en el momento de punción", "No hay que hacer nada"], c: 2 },
+            { q: "¿Qué accesos venoso central tiene menor riesgo de neumotórax?", a: ["Subclavia", "Yugular interna", "Femoral", "Antecubital"], c: 2 },
+            { q: "¿El acceso venoso central en la yugular está contraindicado en?", a: ["Contraindicada en coagulopatías", "Contraindicada en patología carotídea", "Contraindicada en obstrucción de vena cava inferior", "No tiene contraindicación"], c: 1 },
+            { q: "Posición del acceso venoso central en la yugular", a: ["Ligero trendelemburg, cabeza vuelta al lado contrario", "Ligero trendelemburg (15º)", "Debajo del ligamento inguinal, 1 cm por dentro de la arteria subclavia", "Ligero trendelemburg (35º)"], c: 0 },
+            { q: "Si tenemos un paciente con coagulopatía, ¿qué acceso venosos central de 1ª elección tenemos?", a: ["Subclavia", "Yugular interna", "Femoral", "Antecubital"], c: 2 },
+            { q: "¿El acceso venoso central en la femoral está contraindicado en?", a: ["Contraindicada en coagulopatías", "Contraindicada en patología carotídea", "Contraindicada en obstrucción de vena cava inferior", "No tiene contraindicación"], c: 2 },
+            { q: "Posición del acceso venoso central en la femoral", a: ["Ligero trendelemburg, cabeza vuelta al lado contrario", "Ligero trendelemburg (15º)", "Debajo del ligamento inguinal, 1 cm por dentro de la arteria femoral", "Ligero trendelemburg (35º)"], c: 2 },
+            { q: "Posición del paciente en el acceso venoso central en la femoral", a: ["Decúbito prono y MMII en abducción", "Decúbito supino y MMII en adbucción", "Decúbito supino y MMII en abducción", "Decúbito supino lateral y MMII en abducción"], c: 2 },
+            { q: "¿Para qué sirve la llave de 3 paso que se pone en el acceso venosos central?", a: ["Medir y sacar sangre", "Administrar medicación", "Administrar alimentación", "Poner sueroterapia"], c: 0 },
+            { q: "¿Cuál es el objetivo del catéter arterial?", a: ["Monitorización continua de PA", "Monitorización continua de TA", "Monitorización continua de PV", "Monitorización continua de PT"], c: 1 },
+            { q: "¿Cómo es el Catéter monitorización arterial en la femoral?", a: ["8 CM", "10 CM", "15 CM", "20 CM"], c: 3 },
+            { q: "¿Cómo es el Catéter monitorización arterial en la radial?", a: ["8 CM", "10 CM", "15 CM", "20 CM"], c: 0 },
+            { q: "¿Para qué se realiza la técnica de allen?", a: ["Para ver la permeabilidad de las arterias comprobando el llenado arterial y su grosor", "Para ver la cantidad de O2 que hay en la arterias", "Para medir la frecuencia respiratoria", "Para nada"], c: 0 },
+            { q: "¿Dónde se realiza la técnica de allen en el catéter arterial?", a: ["Radial y cubital", "Femoral", "Yugular interna", "Subclavia"], c: 0 },
+            { q: "¿En qué acceso hay que evitar administrar medicación o sueros?", a: ["Catéter Swan Ganz", "Catéter arterial", "Acceso venoso central", "En ningún acceso venoso central"], c: 1 },
+            { q: "¿Para qué sirve el Catéter Swan Ganz?", a: ["Monitorización continua de PA", "Permeabilidad de las arterias", "Monitorización de la arteria pulmonar", "Medir la temperatura corporal"], c: 2 }
+        ];
+
+        class Quiz {
+            constructor() {
+                this.currentIdx = 0;
+                this.correct = 0;
+                this.incorrect = 0;
+                this.answered = false;
+            }
+
+            init() {
+                this.renderQuestion();
+            }
+
+            renderQuestion() {
+                this.answered = false;
+                const q = questions[this.currentIdx];
+                document.getElementById('question-index').innerText = `Pregunta ${this.currentIdx + 1} / ${questions.length}`;
+                document.getElementById('question-text').innerText = q.q;
+                document.getElementById('next-btn').classList.add('hidden');
+                
+                const container = document.getElementById('options-container');
+                container.innerHTML = '';
+
+                q.a.forEach((option, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn w-full text-left p-5 rounded-2xl font-medium text-slate-300';
+                    btn.innerText = option;
+                    btn.onclick = () => this.checkAnswer(idx, btn);
+                    container.appendChild(btn);
+                });
+            }
+
+            checkAnswer(idx, btn) {
+                if (this.answered) return;
+                this.answered = true;
+                
+                const correctIdx = questions[this.currentIdx].c;
+                const buttons = document.querySelectorAll('.option-btn');
+                
+                if (idx === correctIdx) {
+                    this.correct++;
+                    btn.classList.add('correct');
+                    document.getElementById('score-correct').innerText = this.correct;
+                } else {
+                    this.incorrect++;
+                    btn.classList.add('incorrect');
+                    buttons[correctIdx].classList.add('correct');
+                    document.getElementById('score-incorrect').innerText = this.incorrect;
+                }
+
+                buttons.forEach(b => b.disabled = true);
+                document.getElementById('next-btn').classList.remove('hidden');
+            }
+
+            next() {
+                this.currentIdx++;
+                if (this.currentIdx < questions.length) {
+                    this.renderQuestion();
+                } else {
+                    this.finish();
+                }
+            }
+
+            finish() {
+                document.getElementById('quiz-screen').classList.add('hidden');
+                document.getElementById('result-screen').classList.remove('hidden');
+                document.getElementById('final-correct').innerText = this.correct;
+                document.getElementById('final-incorrect').innerText = this.incorrect;
+            }
+        }
+
+        const quiz = new Quiz();
+        window.onload = () => quiz.init();
+    </script>
+</body>
+</html>
